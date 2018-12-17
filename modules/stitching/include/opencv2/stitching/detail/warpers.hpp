@@ -143,7 +143,7 @@ class CV_EXPORTS_TEMPLATE RotationWarperBase : public RotationWarper
 public:
     Point2f warpPoint(const Point2f &pt, InputArray K, InputArray R) CV_OVERRIDE;
 
-    Point3f warpPointCartesian(const Point2f &pt, InputArray K, InputArray R) CV_OVERRIDE;
+    Point3f warpPointCartesian(const Point2f &pt, InputArray K, InputArray R);
 
     Rect buildMaps(Size src_size, InputArray K, InputArray R, OutputArray xmap, OutputArray ymap) CV_OVERRIDE;
 
