@@ -269,7 +269,7 @@ public:
 protected:
     void detectResultRoi(Size src_size, Point &dst_tl, Point &dst_br) CV_OVERRIDE;
 
-    void detectResultRoiByBorder(Size src_size, Point &dst_tl, Point &dst_br) CV_OVERRIDE;
+    void detectResultRoiByBorder(Size src_size, Point &dst_tl, Point &dst_br);
 
 private:
 
