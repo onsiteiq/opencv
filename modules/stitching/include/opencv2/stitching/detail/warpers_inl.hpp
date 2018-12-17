@@ -61,6 +61,14 @@ Point2f RotationWarperBase<P>::warpPoint(const Point2f &pt, InputArray K, InputA
     return uv;
 }
 
+template <class P>
+Point3f RotationWarperBase<P>::warpPointCartesian(const Point2f &pt, InputArray K, InputArray R)
+{
+	projector_.setCameraParams(K, R);
+    Point3f p;
+    projector_.mapForwardCartesian(pt.x, pt.y, p.x, p.y, p.z);
+    return p;
+}
 
 template <class P>
 Rect RotationWarperBase<P>::buildMaps(Size src_size, InputArray K, InputArray R, OutputArray _xmap, OutputArray _ymap)
@@ -274,6 +282,50 @@ void SphericalProjector::mapBackward(float u, float v, float &x, float &y)
     else x = y = -1;
 }
 
+inline
+void SphericalProjector::mapBackwardCartesian( float u, float v, float &xc, float &yc, float &zc )
+{
+    u /= scale;
+    v /= scale;
+
+    float sinv = sinf(static_cast<float>(CV_PI) - v);
+    xc = sinv * sinf(u);
+    yc = cosf(static_cast<float>(CV_PI) - v);
+    zc = sinv * cosf(u);
+}
+
+inline
+void SphericalProjector::mapForwardCartesian( float x, float y,  float &xc, float &yc, float &zc )
+{
+     xc = r_kinv[0] * x + r_kinv[1] * y + r_kinv[2];
+    yc = r_kinv[3] * x + r_kinv[4] * y + r_kinv[5];
+    zc = r_kinv[6] * x + r_kinv[7] * y + r_kinv[8];
+
+    float mag = sqrtf(xc*xc + yc*yc + zc*zc);
+    xc /= mag;
+    yc /= mag;
+    zc /= mag;
+}
+
+inline 
+void SphericalProjector::mapCartesianForward( float x, float y, float z, float &u, float &v )
+{
+    u = scale * atan2f(x, z);
+    float w = y / sqrtf(x * x + y * y + z * z);
+    v = scale * (static_cast<float>(CV_PI) - acosf(w == w ? w : 0));
+}
+
+inline
+void SphericalProjector::mapCartesianBackward( float x, float y, float z, float &xi, float &yi )
+{
+    float zi;
+    xi = k_rinv[0] * x + k_rinv[1] * y + k_rinv[2] * z;
+    yi = k_rinv[3] * x + k_rinv[4] * y + k_rinv[5] * z;
+    zi = k_rinv[6] * x + k_rinv[7] * y + k_rinv[8] * z;
+
+    if (zi > 0) { xi /= zi; yi /= zi; }
+    else xi = yi = -1;
+}
 
 inline
 void CylindricalProjector::mapForward(float x, float y, float &u, float &v)

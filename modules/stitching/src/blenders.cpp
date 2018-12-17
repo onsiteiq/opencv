@@ -326,6 +326,11 @@ static bool ocl_MultiBandBlender_feed(InputArray _src, InputArray _weight,
 
 void MultiBandBlender::feed(InputArray _img, InputArray mask, Point tl)
 {
+	feed( _img, mask, tl, BORDER_REFLECT );
+}
+
+void MultiBandBlender::feed(InputArray _img, InputArray mask, Point tl, int borderType )
+{
 #if ENABLE_LOG
     int64 t = getTickCount();
 #endif
@@ -488,8 +493,7 @@ void MultiBandBlender::feed(InputArray _img, InputArray mask, Point tl)
 
     // Create the source image Laplacian pyramid
     UMat img_with_border;
-    copyMakeBorder(_img, img_with_border, top, bottom, left, right,
-                   BORDER_REFLECT);
+    copyMakeBorder(_img, img_with_border, top, bottom, left, right, borderType);
     LOGLN("  Add border to the source image, time: " << ((getTickCount() - t) / getTickFrequency()) << " sec");
 #if ENABLE_LOG
     t = getTickCount();

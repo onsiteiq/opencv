@@ -43,6 +43,8 @@
 #include "precomp.hpp"
 #include "opencl_kernels_stitching.hpp"
 
+#include <algorithm>
+
 namespace cv {
 namespace detail {
 
@@ -283,6 +285,11 @@ void SphericalWarper::detectResultRoi(Size src_size, Point &dst_tl, Point &dst_b
     float br_uf = static_cast<float>(dst_br.x);
     float br_vf = static_cast<float>(dst_br.y);
 
+	// This is warping backward from u,v corresponding to (0,1,0) and (0,-1,0)
+	// to check if the poles are within the camera frame. I didn't realize that
+	// originally so I implemented and inefficient version in detectResultRoiByBorder.
+	// So at some point we need to choose between the two methods...
+
     float x = projector_.rinv[1];
     float y = projector_.rinv[4];
     float z = projector_.rinv[7];
@@ -294,6 +301,11 @@ void SphericalWarper::detectResultRoi(Size src_size, Point &dst_tl, Point &dst_b
         {
             tl_uf = std::min(tl_uf, 0.f); tl_vf = std::min(tl_vf, static_cast<float>(CV_PI * projector_.scale));
             br_uf = std::max(br_uf, 0.f); br_vf = std::max(br_vf, static_cast<float>(CV_PI * projector_.scale));
+
+            if ( br_vf > projector_.scale*static_cast<float>(CV_PI)-1 )
+            {
+                br_vf = projector_.scale*static_cast<float>(CV_PI)-1;
+            }
         }
     }
 
@@ -308,6 +320,126 @@ void SphericalWarper::detectResultRoi(Size src_size, Point &dst_tl, Point &dst_b
         {
             tl_uf = std::min(tl_uf, 0.f); tl_vf = std::min(tl_vf, static_cast<float>(0));
             br_uf = std::max(br_uf, 0.f); br_vf = std::max(br_vf, static_cast<float>(0));
+        }
+    }
+
+    dst_tl.x = static_cast<int>(tl_uf);
+    dst_tl.y = static_cast<int>(tl_vf);
+    dst_br.x = static_cast<int>(br_uf);
+    dst_br.y = static_cast<int>(br_vf);
+}
+
+
+void SphericalWarper::getNewTLandBR_U( float& tl_uf, float& br_uf, float uf )
+{
+    // If tl and br are uninitialized just set and return
+    if ( tl_uf == std::numeric_limits<float>::max() )
+    {
+        tl_uf = std::min(tl_uf, uf);
+        br_uf = std::max(br_uf, uf); 
+        return;
+    }
+
+    // Otherwise check for crossing of the +/-PI boundary and treat as a special case
+    if ( ((tl_uf < 0.0f && uf > 0.0f) || (tl_uf > 0.0f && uf < 0.0f)) && cosf(uf/projector_.scale) < 0.0f )
+    {
+        tl_uf = -projector_.scale*static_cast<float>(CV_PI);
+        br_uf = projector_.scale*static_cast<float>(CV_PI)-1;
+    }
+    else
+    {
+        tl_uf = std::min(tl_uf, uf);
+        br_uf = std::max(br_uf, uf); 
+    }
+}
+
+void SphericalWarper::detectResultRoiByBorder(Size src_size, Point &dst_tl, Point &dst_br)
+{
+    float tl_uf = std::numeric_limits<float>::max();
+    float tl_vf = std::numeric_limits<float>::max();
+    float br_uf = -std::numeric_limits<float>::max();
+    float br_vf = -std::numeric_limits<float>::max();
+
+    // To test if one of the poles is within the spherically projected frustum we
+    // collect the points of the border (u,v) and reproject to the x,z plane. The
+    // points form a polygon. If the origin is within the polygon then one of
+    // the poles is within the frustum.
+
+    std::vector<Point2f> borderProjX0(src_size.width);
+    std::vector<Point2f> borderProjXH(src_size.width);
+    std::vector<Point2f> borderProj0Y(src_size.height);
+    std::vector<Point2f> borderProjWY(src_size.height);
+
+    float u, v, tmp;
+    for (float x = 0; x < src_size.width; ++x)
+    {
+        projector_.mapForward(static_cast<float>(x), 0, u, v);
+
+        projector_.mapBackwardCartesian( u, v, borderProjX0[x].x, tmp, borderProjX0[x].y);
+
+        getNewTLandBR_U(tl_uf, br_uf, u);
+        //tl_uf = std::min(tl_uf, u); 
+        tl_vf = std::min(tl_vf, v);
+        //br_uf = std::max(br_uf, u); 
+        br_vf = std::max(br_vf, v);
+
+        projector_.mapForward(static_cast<float>(x), static_cast<float>(src_size.height - 1), u, v);
+
+        projector_.mapBackwardCartesian( u, v, borderProjXH[x].x, tmp, borderProjXH[x].y);
+
+        getNewTLandBR_U(tl_uf, br_uf, u);
+        //tl_uf = std::min(tl_uf, u);
+        tl_vf = std::min(tl_vf, v);
+        //br_uf = std::max(br_uf, u);
+        br_vf = std::max(br_vf, v);
+    }
+    for (int y = 0; y < src_size.height; ++y)
+    {
+        projector_.mapForward(0, static_cast<float>(y), u, v);
+
+        projector_.mapBackwardCartesian( u, v, borderProj0Y[y].x, tmp, borderProj0Y[y].y);
+
+        getNewTLandBR_U(tl_uf, br_uf, u);
+        //tl_uf = std::min(tl_uf, u); 
+        tl_vf = std::min(tl_vf, v);
+        //br_uf = std::max(br_uf, u); 
+        br_vf = std::max(br_vf, v);
+
+        projector_.mapForward(static_cast<float>(src_size.width - 1), static_cast<float>(y), u, v);
+
+        projector_.mapBackwardCartesian( u, v, borderProjWY[y].x, tmp, borderProjWY[y].y);
+
+        getNewTLandBR_U(tl_uf, br_uf, u);
+        //tl_uf = std::min(tl_uf, u); 
+        tl_vf = std::min(tl_vf, v);
+        //br_uf = std::max(br_uf, u); 
+        br_vf = std::max(br_vf, v);
+    }
+
+    // Combine the x,z reprojected border into a single polygon with consistent handedness.
+
+    std::vector<Point2f> xzPolygon;
+
+    xzPolygon.insert( std::end(xzPolygon), std::begin(borderProjX0), std::end(borderProjX0) );
+    xzPolygon.insert( std::end(xzPolygon), std::begin(borderProjWY), std::end(borderProjWY) );
+
+    std::reverse(borderProjXH.begin(),borderProjXH.end());
+    xzPolygon.insert( std::end(xzPolygon), std::begin(borderProjXH), std::end(borderProjXH) );
+
+    std::reverse(borderProj0Y.begin(),borderProj0Y.end());
+    xzPolygon.insert( std::end(xzPolygon), std::begin(borderProj0Y), std::end(borderProj0Y) );
+
+    if ( pointPolygonTest(xzPolygon, Point2f(0.0f,0.0f), false) > 0.0 )
+    {
+        // One of the poles is inside our polygon. Do a basic test to see which pole.
+        // This skips some edge conditions. 
+        if ( br_vf > 0.5f*projector_.scale*static_cast<float>(CV_PI) )
+        {
+            br_vf = projector_.scale*static_cast<float>(CV_PI)-1;
+        }
+        else
+        {
+            tl_vf = 0.0f;
         }
     }
 

@@ -143,6 +143,8 @@ class CV_EXPORTS_TEMPLATE RotationWarperBase : public RotationWarper
 public:
     Point2f warpPoint(const Point2f &pt, InputArray K, InputArray R) CV_OVERRIDE;
 
+    Point3f warpPointCartesian(const Point2f &pt, InputArray K, InputArray R) CV_OVERRIDE;
+
     Rect buildMaps(Size src_size, InputArray K, InputArray R, OutputArray xmap, OutputArray ymap) CV_OVERRIDE;
 
     Point warp(InputArray src, InputArray K, InputArray R, int interp_mode, int border_mode,
@@ -237,6 +239,12 @@ struct CV_EXPORTS SphericalProjector : ProjectorBase
 {
     void mapForward(float x, float y, float &u, float &v);
     void mapBackward(float u, float v, float &x, float &y);
+
+    void mapBackwardCartesian( float u, float v, float &xc, float &yc, float &zc );
+    void mapForwardCartesian( float x, float y,  float &xc, float &yc, float &zc );
+
+    void mapCartesianForward( float x, float y, float z, float &u, float &v );
+    void mapCartesianBackward( float x, float y, float z, float &xi, float &yi );
 };
 
 
@@ -260,6 +268,12 @@ public:
     Point warp(InputArray src, InputArray K, InputArray R, int interp_mode, int border_mode, OutputArray dst) CV_OVERRIDE;
 protected:
     void detectResultRoi(Size src_size, Point &dst_tl, Point &dst_br) CV_OVERRIDE;
+
+    void detectResultRoiByBorder(Size src_size, Point &dst_tl, Point &dst_br) CV_OVERRIDE;
+
+private:
+
+    void getNewTLandBR_U( float& tl_uf, float& br_uf, float uf );
 };
 
 

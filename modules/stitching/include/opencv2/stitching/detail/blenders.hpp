@@ -134,6 +134,7 @@ public:
 
     void prepare(Rect dst_roi) CV_OVERRIDE;
     void feed(InputArray img, InputArray mask, Point tl) CV_OVERRIDE;
+    void feed(InputArray img, InputArray mask, Point tl, int borderType) CV_OVERRIDE;
     void blend(InputOutputArray dst, InputOutputArray dst_mask) CV_OVERRIDE;
 
 private:
