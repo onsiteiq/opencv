@@ -175,6 +175,12 @@ struct CV_EXPORTS PlaneProjector : ProjectorBase
 {
     void mapForward(float x, float y, float &u, float &v);
     void mapBackward(float u, float v, float &x, float &y);
+
+    void mapBackwardCartesian(float u, float v, float &xc, float &yc, float &zc) {}
+    void mapForwardCartesian(float x, float y, float &xc, float &yc, float &zc) {}
+
+    void mapCartesianForward(float x, float y, float z, float &u, float &v) {}
+    void mapCartesianBackward(float x, float y, float z, float &xi, float &yi) {}
 };
 
 /** @brief Warper that maps an image onto the z = 1 plane.
@@ -281,6 +287,12 @@ struct CV_EXPORTS CylindricalProjector : ProjectorBase
 {
     void mapForward(float x, float y, float &u, float &v);
     void mapBackward(float u, float v, float &x, float &y);
+
+    void mapBackwardCartesian(float u, float v, float &xc, float &yc, float &zc) {}
+    void mapForwardCartesian(float x, float y, float &xc, float &yc, float &zc) {}
+
+    void mapCartesianForward(float x, float y, float z, float &u, float &v) {}
+    void mapCartesianBackward(float x, float y, float z, float &xi, float &yi) {}
 };
 
 
@@ -309,6 +321,12 @@ struct CV_EXPORTS FisheyeProjector : ProjectorBase
 {
     void mapForward(float x, float y, float &u, float &v);
     void mapBackward(float u, float v, float &x, float &y);
+
+    void mapBackwardCartesian(float u, float v, float &xc, float &yc, float &zc) {}
+    void mapForwardCartesian(float x, float y, float &xc, float &yc, float &zc) {}
+
+    void mapCartesianForward(float x, float y, float z, float &u, float &v) {}
+    void mapCartesianBackward(float x, float y, float z, float &xi, float &yi) {}
 };
 
 
@@ -323,6 +341,12 @@ struct CV_EXPORTS StereographicProjector : ProjectorBase
 {
     void mapForward(float x, float y, float &u, float &v);
     void mapBackward(float u, float v, float &x, float &y);
+
+    void mapBackwardCartesian(float u, float v, float &xc, float &yc, float &zc) {}
+    void mapForwardCartesian(float x, float y, float &xc, float &yc, float &zc) {}
+
+    void mapCartesianForward(float x, float y, float z, float &u, float &v) {}
+    void mapCartesianBackward(float x, float y, float z, float &xi, float &yi) {}
 };
 
 
@@ -339,6 +363,12 @@ struct CV_EXPORTS CompressedRectilinearProjector : ProjectorBase
 
     void mapForward(float x, float y, float &u, float &v);
     void mapBackward(float u, float v, float &x, float &y);
+
+    void mapBackwardCartesian(float u, float v, float &xc, float &yc, float &zc) {}
+    void mapForwardCartesian(float x, float y, float &xc, float &yc, float &zc) {}
+
+    void mapCartesianForward(float x, float y, float z, float &u, float &v) {}
+    void mapCartesianBackward(float x, float y, float z, float &xi, float &yi) {}
 };
 
 
@@ -360,6 +390,12 @@ struct CV_EXPORTS CompressedRectilinearPortraitProjector : ProjectorBase
 
     void mapForward(float x, float y, float &u, float &v);
     void mapBackward(float u, float v, float &x, float &y);
+
+    void mapBackwardCartesian(float u, float v, float &xc, float &yc, float &zc) {}
+    void mapForwardCartesian(float x, float y, float &xc, float &yc, float &zc) {}
+
+    void mapCartesianForward(float x, float y, float z, float &u, float &v) {}
+    void mapCartesianBackward(float x, float y, float z, float &xi, float &yi) {}
 };
 
 
@@ -381,6 +417,12 @@ struct CV_EXPORTS PaniniProjector : ProjectorBase
 
     void mapForward(float x, float y, float &u, float &v);
     void mapBackward(float u, float v, float &x, float &y);
+
+    void mapBackwardCartesian(float u, float v, float &xc, float &yc, float &zc) {}
+    void mapForwardCartesian(float x, float y, float &xc, float &yc, float &zc) {}
+
+    void mapCartesianForward(float x, float y, float z, float &u, float &v) {}
+    void mapCartesianBackward(float x, float y, float z, float &xi, float &yi) {}
 };
 
 
@@ -402,6 +444,12 @@ struct CV_EXPORTS PaniniPortraitProjector : ProjectorBase
 
     void mapForward(float x, float y, float &u, float &v);
     void mapBackward(float u, float v, float &x, float &y);
+
+    void mapBackwardCartesian(float u, float v, float &xc, float &yc, float &zc) {}
+    void mapForwardCartesian(float x, float y, float &xc, float &yc, float &zc) {}
+
+    void mapCartesianForward(float x, float y, float z, float &u, float &v) {}
+    void mapCartesianBackward(float x, float y, float z, float &xi, float &yi) {}
 };
 
 
@@ -422,6 +470,12 @@ struct CV_EXPORTS MercatorProjector : ProjectorBase
 {
     void mapForward(float x, float y, float &u, float &v);
     void mapBackward(float u, float v, float &x, float &y);
+
+    void mapBackwardCartesian(float u, float v, float &xc, float &yc, float &zc) {}
+    void mapForwardCartesian(float x, float y, float &xc, float &yc, float &zc) {}
+
+    void mapCartesianForward(float x, float y, float z, float &u, float &v) {}
+    void mapCartesianBackward(float x, float y, float z, float &xi, float &yi) {}
 };
 
 
@@ -436,6 +490,12 @@ struct CV_EXPORTS TransverseMercatorProjector : ProjectorBase
 {
     void mapForward(float x, float y, float &u, float &v);
     void mapBackward(float u, float v, float &x, float &y);
+
+    void mapBackwardCartesian(float u, float v, float &xc, float &yc, float &zc) {}
+    void mapForwardCartesian(float x, float y, float &xc, float &yc, float &zc) {}
+
+    void mapCartesianForward(float x, float y, float z, float &u, float &v) {}
+    void mapCartesianBackward(float x, float y, float z, float &xi, float &yi) {}
 };
 
 
@@ -568,6 +628,12 @@ struct CV_EXPORTS SphericalPortraitProjector : ProjectorBase
 {
     void mapForward(float x, float y, float &u, float &v);
     void mapBackward(float u, float v, float &x, float &y);
+
+    void mapBackwardCartesian(float u, float v, float &xc, float &yc, float &zc) {}
+    void mapForwardCartesian(float x, float y, float &xc, float &yc, float &zc) {}
+
+    void mapCartesianForward(float x, float y, float z, float &u, float &v) {}
+    void mapCartesianBackward(float x, float y, float z, float &xi, float &yi) {}
 };
 
 
@@ -586,6 +652,12 @@ struct CV_EXPORTS CylindricalPortraitProjector : ProjectorBase
 {
     void mapForward(float x, float y, float &u, float &v);
     void mapBackward(float u, float v, float &x, float &y);
+
+    void mapBackwardCartesian(float u, float v, float &xc, float &yc, float &zc) {}
+    void mapForwardCartesian(float x, float y, float &xc, float &yc, float &zc) {}
+
+    void mapCartesianForward(float x, float y, float z, float &u, float &v) {}
+    void mapCartesianBackward(float x, float y, float z, float &xi, float &yi) {}
 };
 
 
@@ -605,6 +677,12 @@ struct CV_EXPORTS PlanePortraitProjector : ProjectorBase
 {
     void mapForward(float x, float y, float &u, float &v);
     void mapBackward(float u, float v, float &x, float &y);
+
+    void mapBackwardCartesian(float u, float v, float &xc, float &yc, float &zc) {}
+    void mapForwardCartesian(float x, float y, float &xc, float &yc, float &zc) {}
+
+    void mapCartesianForward(float x, float y, float z, float &u, float &v) {}
+    void mapCartesianBackward(float x, float y, float z, float &xi, float &yi) {}
 };
 
 
